@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user-specific settings and profile information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique identifier for the user." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "displayName": { "type": "string", "description": "User's display name." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the profile was created." }
+      },
+      "required": ["uid", "email"]
+    },
+    "PasswordEntry": {
+      "title": "Password Entry",
+      "description": "A saved password entry in the user's history.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Owner's UID." },
+        "password": { "type": "string", "description": "The generated password." },
+        "label": { "type": "string", "description": "Optional label or note." },
+        "entropy": { "type": "number", "description": "Calculated entropy." },
+        "score": { "type": "number", "description": "Security score (0-5)." },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When it was saved." }
+      },
+      "required": ["uid", "password", "entropy", "score", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{uid}": {
+      "schema": "UserProfile",
+      "description": "User profile documents."
+    },
+    "users/{uid}/passwords/{passwordId}": {
+      "schema": "PasswordEntry",
+      "description": "User's saved passwords history."
+    }
+  }
+}
