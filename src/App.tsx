@@ -583,17 +583,7 @@ const AuthScreen = ({ onLogin, onGoogleLogin, lang, t }: { onLogin: () => void, 
               </div>
             </Rotating3DObject>
 
-            <Rotating3DObject 
-              onClick={() => setAuthMode('phone')}
-              title={t.phoneLogin}
-            >
-              <div className="relative w-32 h-32 flex items-center justify-center">
-                <Smartphone className="w-24 h-24 text-white/90 drop-shadow-[0_0_40px_rgba(0,255,255,0.8)]" />
-                {/* Crystal/Glass overlay for Phone icon */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/30 via-transparent to-white/10 rounded-full backdrop-blur-[2px] border border-white/20 shadow-inner" />
-                <div className="absolute top-2 left-4 w-8 h-4 bg-white/20 rounded-full blur-sm rotate-[-45deg]" />
-              </div>
-            </Rotating3DObject>
+
           </div>
         </motion.div>
       </div>
