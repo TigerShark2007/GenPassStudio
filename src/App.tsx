@@ -591,12 +591,77 @@ const AuthScreen = ({ onLogin, onGoogleLogin, lang, t }: { onLogin: () => void, 
   );
 };
 
+
+// --- Splash Screen ---
+const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 2000);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#050505]"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.6, ease: 'easeInOut' }}
+    >
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <motion.div
+          className="w-96 h-96 rounded-full bg-cyber-accent/10 blur-[120px]"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1.5, opacity: 1 }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+        />
+      </div>
+      <motion.div
+        className="relative flex flex-col items-center gap-6"
+        initial={{ scale: 0.3, opacity: 0 }}
+        animate={{ scale: [0.3, 1.15, 1], opacity: 1 }}
+        transition={{ duration: 0.8, times: [0, 0.7, 1], ease: 'easeOut' }}
+      >
+        <motion.div
+          animate={{ filter: ['drop-shadow(0 0 0px #00ffff)', 'drop-shadow(0 0 40px #00ffff)', 'drop-shadow(0 0 20px #00ffff)'] }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+        >
+          <motion.img
+            src="/MurcielagoEscudo.png"
+            alt="GenPass Studio"
+            className="w-48 h-48 object-contain"
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 0.8, delay: 0.5, ease: 'easeInOut' }}
+          />
+        </motion.div>
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <h1 className="text-4xl font-bold text-white tracking-tight">
+            GenPass <span className="text-cyber-accent">Studio</span>
+          </h1>
+          <motion.div
+            className="h-px bg-cyber-accent/50 mt-2"
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+          />
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [lang, setLang] = useState('es');
   const t = translations[lang as keyof typeof translations];
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
+  const prevUserRef = React.useRef<User | null>(null);
   const [history, setHistory] = useState<PasswordEntry[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -647,6 +712,11 @@ export default function App() {
   // --- Auth ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
+      const wasLoggedOut = prevUserRef.current === null && !loading;
+      if (wasLoggedOut && u !== null) {
+        setShowSplash(true);
+      }
+      prevUserRef.current = u;
       setUser(u);
       setLoading(false);
     });
@@ -853,6 +923,14 @@ export default function App() {
           <RefreshCw className="text-cyber-accent w-12 h-12" />
         </motion.div>
       </div>
+    );
+  }
+
+  if (showSplash) {
+    return (
+      <AnimatePresence onExitComplete={() => setShowSplash(false)}>
+        <SplashScreen key="splash" onComplete={() => setShowSplash(false)} />
+      </AnimatePresence>
     );
   }
 
