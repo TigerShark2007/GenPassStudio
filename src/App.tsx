@@ -291,7 +291,7 @@ const Rotating3DObject = ({ onClick, children, title }: { onClick: () => void; c
   );
 };
 
-const AuthScreen = ({ onLogin, onGoogleLogin, lang, t }: { onLogin: () => void, onGoogleLogin: () => void, lang: string, t: any }) => {
+const AuthScreen = ({ onLogin, onGoogleLogin, onShowSplash, lang, t }: { onLogin: () => void, onGoogleLogin: () => void, onShowSplash: () => void, lang: string, t: any }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [authMode, setAuthMode] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
@@ -405,6 +405,7 @@ const AuthScreen = ({ onLogin, onGoogleLogin, lang, t }: { onLogin: () => void, 
           displayName: `${firstName} ${lastName}`.trim()
         });
       }
+      onShowSplash();
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Error');
@@ -712,11 +713,6 @@ export default function App() {
   // --- Auth ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
-      const wasLoggedOut = prevUserRef.current === null && !loading;
-      if (wasLoggedOut && u !== null) {
-        setShowSplash(true);
-      }
-      prevUserRef.current = u;
       setUser(u);
       setLoading(false);
     });
@@ -727,7 +723,7 @@ export default function App() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      showToast(t.loginSuccess);
+      setShowSplash(true);
     } catch (error) {
       console.error(error);
       showToast('Error', 'error');
@@ -946,7 +942,7 @@ export default function App() {
             {lang === 'es' ? 'English' : 'Español'}
           </button>
         </div>
-        <AuthScreen onLogin={() => {}} onGoogleLogin={handleLogin} lang={lang} t={t} />
+        <AuthScreen onLogin={() => {}} onGoogleLogin={handleLogin} onShowSplash={() => setShowSplash(true)} lang={lang} t={t} />
         <AnimatePresence>
           {toast && <Toast {...toast} onClose={() => setToast(null)} />}
         </AnimatePresence>
