@@ -665,6 +665,16 @@ export default function App() {
   const prevUserRef = React.useRef<User | null>(null);
   const [history, setHistory] = useState<PasswordEntry[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+
+  const togglePasswordVisibility = (id: string) => {
+    setVisiblePasswords(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const evaluateStrength = (password: string): { score: number; label: string; color: string } => {
     if (!password) return { score: 0, label: 'None', color: 'text-slate-500' };
@@ -1268,13 +1278,19 @@ export default function App() {
                         </p>
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
+                        <button
+                          onClick={() => togglePasswordVisibility(entry.id!)}
+                          className="p-1.5 hover:bg-white/10 rounded-md text-slate-400 hover:text-cyber-accent"
+                        >
+                          {visiblePasswords.has(entry.id!) ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
                           onClick={() => copyToClipboard(entry.password)}
                           className="p-1.5 hover:bg-white/10 rounded-md text-slate-400 hover:text-cyber-accent"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => deleteEntry(entry.id!)}
                           className="p-1.5 hover:bg-white/10 rounded-md text-slate-400 hover:text-cyber-danger"
                         >
@@ -1284,7 +1300,7 @@ export default function App() {
                     </div>
                     <div className="flex items-center justify-between">
                       <code className="text-xs text-cyber-accent font-mono tracking-wider truncate max-w-[180px]">
-                        {entry.password}
+                        {visiblePasswords.has(entry.id!) ? entry.password : '••••••••••••'}
                       </code>
                       <div className={`w-1.5 h-1.5 rounded-full ${evaluateStrength(entry.password).color}`} />
                     </div>
