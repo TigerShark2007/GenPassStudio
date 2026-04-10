@@ -177,7 +177,7 @@ const translations = {
     invalidPhone: "Número de teléfono inválido",
     invalidCode: "Código inválido",
     forgotPassword: "¿Olvidaste tu contraseña?",
-    resetEmailSent: "Correo de recuperación enviado. Revisa tu bandeja.",
+    resetEmailSent: "Correo de recuperación enviado. Revisa tu bandeja y también la carpeta de SPAM.",
     resetEmailError: "No se pudo enviar el correo de recuperación."
   },
   en: {
@@ -248,7 +248,7 @@ const translations = {
     invalidPhone: "Invalid phone number",
     invalidCode: "Invalid code",
     forgotPassword: "Forgot your password?",
-    resetEmailSent: "Recovery email sent. Check your inbox.",
+    resetEmailSent: "Recovery email sent. Check your inbox and your SPAM folder.",
     resetEmailError: "Could not send recovery email."
   }
 };
