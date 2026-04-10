@@ -36,7 +36,8 @@ import {
   User,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
   collection, 
@@ -174,7 +175,10 @@ const translations = {
     enterCode: "Introduce el código",
     verifyCode: "Verificar Código",
     invalidPhone: "Número de teléfono inválido",
-    invalidCode: "Código inválido"
+    invalidCode: "Código inválido",
+    forgotPassword: "¿Olvidaste tu contraseña?",
+    resetEmailSent: "Correo de recuperación enviado. Revisa tu bandeja.",
+    resetEmailError: "No se pudo enviar el correo de recuperación."
   },
   en: {
     appName: "GenPass",
@@ -242,7 +246,10 @@ const translations = {
     enterCode: "Enter the code",
     verifyCode: "Verify Code",
     invalidPhone: "Invalid phone number",
-    invalidCode: "Invalid code"
+    invalidCode: "Invalid code",
+    forgotPassword: "Forgot your password?",
+    resetEmailSent: "Recovery email sent. Check your inbox.",
+    resetEmailError: "Could not send recovery email."
   }
 };
 
@@ -304,6 +311,21 @@ const AuthScreen = ({ onLogin, onGoogleLogin, onShowSplash, lang, t }: { onLogin
   const [verificationId, setVerificationId] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError(t.email + ' — ' + (lang === 'es' ? 'introduce tu email primero.' : 'enter your email first.'));
+      return;
+    }
+    setError('');
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetSent(true);
+    } catch {
+      setError(t.resetEmailError);
+    }
+  };
 
   const setupRecaptcha = () => {
     try {
@@ -465,12 +487,33 @@ const AuthScreen = ({ onLogin, onGoogleLogin, onShowSplash, lang, t }: { onLogin
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">{t.password}</label>
-                <input 
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">{t.password}</label>
+                  {isLogin && (
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-[10px] text-slate-500 hover:text-cyber-accent transition-colors"
+                    >
+                      {t.forgotPassword}
+                    </button>
+                  )}
+                </div>
+                <input
                   type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
                   className="w-full cyber-input text-sm" placeholder="••••••••"
                 />
               </div>
+
+              {resetSent && (
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="p-3 rounded-lg bg-cyber-accent/10 border border-cyber-accent/20 flex items-center gap-2 text-cyber-accent text-xs"
+                >
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  {t.resetEmailSent}
+                </motion.div>
+              )}
 
               {!isLogin && (
                 <div className="space-y-1">
