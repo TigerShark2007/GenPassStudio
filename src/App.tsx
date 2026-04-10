@@ -178,7 +178,12 @@ const translations = {
     invalidCode: "Código inválido",
     forgotPassword: "¿Olvidaste tu contraseña?",
     resetEmailSent: "Correo de recuperación enviado. Revisa tu bandeja y también la carpeta de SPAM.",
-    resetEmailError: "No se pudo enviar el correo de recuperación."
+    resetEmailError: "No se pudo enviar el correo de recuperación.",
+    addManual: "Añadir contraseña",
+    addManualLabel: "Etiqueta",
+    addManualPassword: "Contraseña",
+    addManualSave: "Guardar",
+    addManualCancel: "Cancelar"
   },
   en: {
     appName: "GenPass",
@@ -249,7 +254,12 @@ const translations = {
     invalidCode: "Invalid code",
     forgotPassword: "Forgot your password?",
     resetEmailSent: "Recovery email sent. Check your inbox and your SPAM folder.",
-    resetEmailError: "Could not send recovery email."
+    resetEmailError: "Could not send recovery email.",
+    addManual: "Add password",
+    addManualLabel: "Label",
+    addManualPassword: "Password",
+    addManualSave: "Save",
+    addManualCancel: "Cancel"
   }
 };
 
@@ -709,6 +719,19 @@ export default function App() {
   const [history, setHistory] = useState<PasswordEntry[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+  const [showManualForm, setShowManualForm] = useState(false);
+  const [manualLabel, setManualLabel] = useState('');
+  const [manualPassword, setManualPassword] = useState('');
+  const [manualPasswordVisible, setManualPasswordVisible] = useState(false);
+
+  const handleManualSave = async () => {
+    if (!manualPassword.trim()) return;
+    await savePassword(manualPassword.trim(), manualLabel.trim());
+    setManualLabel('');
+    setManualPassword('');
+    setManualPasswordVisible(false);
+    setShowManualForm(false);
+  };
 
   const togglePasswordVisibility = (id: string) => {
     setVisiblePasswords(prev => {
@@ -1280,6 +1303,13 @@ export default function App() {
               <h2 className="text-xl font-bold">{t.history}</h2>
             </div>
             <div className="flex gap-2">
+              <button
+                onClick={() => setShowManualForm(v => !v)}
+                className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-cyber-accent transition-colors"
+                title={t.addManual}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
               <label className="p-2 hover:bg-white/5 rounded-lg cursor-pointer text-slate-400 hover:text-cyber-accent transition-colors">
                 <Upload className="w-4 h-4" />
                 <input type="file" className="hidden" accept=".json" onChange={importHistory} />
@@ -1290,10 +1320,63 @@ export default function App() {
             </div>
           </div>
 
+          <AnimatePresence>
+            {showManualForm && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.addManual}</p>
+                  <input
+                    type="text"
+                    placeholder={t.addManualLabel}
+                    value={manualLabel}
+                    onChange={(e) => setManualLabel(e.target.value)}
+                    className="w-full cyber-input text-sm"
+                  />
+                  <div className="relative">
+                    <input
+                      type={manualPasswordVisible ? 'text' : 'password'}
+                      placeholder={t.addManualPassword}
+                      value={manualPassword}
+                      onChange={(e) => setManualPassword(e.target.value)}
+                      className="w-full cyber-input text-sm pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setManualPasswordVisible(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyber-accent transition-colors"
+                    >
+                      {manualPasswordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleManualSave}
+                      disabled={!manualPassword.trim()}
+                      className="flex-1 cyber-button cyber-button-primary text-sm py-2"
+                    >
+                      {t.addManualSave}
+                    </button>
+                    <button
+                      onClick={() => { setShowManualForm(false); setManualLabel(''); setManualPassword(''); }}
+                      className="flex-1 cyber-button cyber-button-secondary text-sm py-2"
+                    >
+                      {t.addManualCancel}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={t.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
